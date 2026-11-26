@@ -1,0 +1,22 @@
+# CPython 3.12 Windows x64. Versões resolvidas da compilação nativa.
+altgraph==0.17.5
+cffi==2.1.1
+charset-normalizer==3.5.3
+cryptography==50.0.2
+et_xmlfile==2.0.0
+openpyxl==3.1.5
+packaging==26.4
+pdfminer.six==20260107
+pdfplumber==0.11.11
+pefile==2024.8.26
+pillow==13.0.0
+pip==26.2.2
+pycparser==3.12
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.10
+pypdfium2==5.15.2
+PySide6_Essentials==6.12.0
+pywin32-ctypes==0.2.3
+setuptools==84.2.1
+shiboken6==6.12.0
+wheel==0.48.0

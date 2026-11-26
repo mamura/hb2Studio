@@ -9,3 +9,14 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# Distribuição Windows: binários, instaladores e ambientes de compilação
+/installer-output/
+/vendor/
+/.venv-windows/
+*.exe
+*.msi
+*.dll
+*.pyd
+*.traineddata
+*.lnk

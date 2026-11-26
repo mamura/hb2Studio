@@ -1,6 +1,82 @@
 # HB2 Studio
 
-Primeira etapa do motor local de diagnóstico e extração de crachás. O comando de diagnóstico exibe números de página, lados reconhecidos e estados de extração. Os valores ficam em memória e podem ser acessados pela API Python.
+Aplicação desktop e motor local de extração de crachás, com pareamento de frente
+e verso, OCR complementar, fotos e exportação para Excel.
+
+Para usar no Windows sem instalar Python, WSL ou Tesseract, consulte a
+[distribuição com instalador](packaging/windows/README.md). As instruções de
+execução pelo código-fonte abaixo destinam-se ao desenvolvimento.
+
+## Abrir a aplicação desktop
+
+Requer Python 3.10 ou superior. Na pasta do projeto:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[desktop]"
+.\.venv\Scripts\python.exe -m hb2_studio.desktop
+```
+
+No Linux:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -e ".[desktop]"
+.venv/bin/python -m hb2_studio.desktop
+```
+
+Em Ubuntu/Debian com interface X11, instale também as bibliotecas nativas do Qt
+e o Tesseract, se ainda não estiverem presentes:
+
+```bash
+sudo apt install tesseract-ocr tesseract-ocr-por libxcb-cursor0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-util1 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1
+```
+
+A janela requer uma sessão gráfica (no WSL, WSLg ou outro servidor gráfico).
+
+Após instalar o extra `desktop`, também é possível abrir com
+`hb2-studio-desktop` no ambiente virtual ativo.
+
+O OCR requer Tesseract instalado separadamente, com o idioma português (`por`).
+O executável deve estar no `PATH`. Se estiver em outro local, indique-o ao abrir:
+
+```powershell
+.\.venv\Scripts\python.exe -m hb2_studio.desktop --tesseract "C:\Program Files\Tesseract-OCR\tesseract.exe"
+```
+
+Outra opção é definir `HB2_TESSERACT` antes de iniciar o aplicativo. Se os dados
+de idioma não estiverem no diretório padrão do Tesseract, configure também
+`TESSDATA_PREFIX` apontando para a pasta que contém `por.traineddata`. No Linux,
+instale os pacotes Tesseract e idioma português da sua distribuição. O aplicativo
+informa quando o executável ou o idioma necessário não estiver disponível.
+
+Na tela **Extrair PDF**:
+
+1. Selecione ou arraste um único PDF. A quantidade de páginas aparece primeiro;
+   a quantidade de pares aparece depois que o motor terminar o pareamento.
+2. Escolha a pasta de saída e clique em **Processar**. A leitura do PDF e o
+   processamento usam uma tarefa em segundo plano. A etapa atual e a contagem
+   real de crachás concluídos são atualizadas sem bloquear a janela.
+3. Ao concluir, confira o total de crachás, os registros com pendências e a
+   prévia de nome de guerra, nome completo, matrícula e situação. Use
+   **Abrir planilha** ou **Abrir pasta de fotos** para acessar os resultados.
+
+Cada execução cria uma subpasta `HB2Studio-DATA_HORA` dentro da pasta escolhida,
+com `crachas.xlsx`, `fotos/`, `valores-combinados.json` e os intermediários. As abas
+`Crachás` e `Revisão`, os links relativos e o formato texto de matrícula e PIS
+são preservados pelo exportador existente. Mantenha a planilha junto de `fotos/`.
+Para trabalhar nesta pasta de código, escolha `resultados/`, já ignorada pelo Git.
+
+Em caso de falha, a tela mostra uma mensagem e permite tentar novamente ou
+selecionar outro PDF/pasta. Arquivos com pareamento inválido não são exportados
+parcialmente como um lote concluído. Ao fechar durante uma tarefa, o aplicativo
+solicita a interrupção e aguarda a etapa atual terminar, sem encerrar a thread
+à força. Não há histórico, integração com CorelDRAW ou instalador nesta versão.
+
+A interface está em `hb2_studio/desktop.py`; o fluxo independente de Qt está em
+`hb2_studio/pipeline.py` e chama os extratores e o exportador existentes. O fluxo
+não depende de uma contagem fixa de 163 pares. O comando de terminal de
+diagnóstico continua disponível, sem alterações:
 
 ## Executar no Windows
 
@@ -210,3 +286,22 @@ A aba `Revisão` inclui também as pendências da frente e da foto. As fotos tê
 nomes pela página da frente e links relativos; mova o Excel junto com `fotos/`.
 Ao reabrir o Excel, são conferidos todos os valores, tipos, links e a abertura de
 cada imagem correspondente. Matrícula e PIS continuam como texto, com formato `@`.
+
+## Instalador Windows 64 bits
+
+A configuração `onedir` do PyInstaller e o instalador por usuário do Inno Setup
+estão em [`packaging/windows/`](packaging/windows/README.md). A instalação final
+inclui Qt, Python, Tesseract, português e licenças, sem requisitos separados de
+Python/WSL/OCR no computador do usuário.
+
+Para compilar e conferir apenas instalação e abertura pelo atalho, use o
+PowerShell do Windows, na raiz deste projeto:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\windows\build.ps1 -Smoke
+```
+
+As instruções de reprodução, pré-requisitos exclusivos da máquina de compilação,
+localização do instalador e registros da checagem estão no guia acima. Os arquivos
+de distribuição ficam em `dist/`, fora do controle de versão. A compilação não
+inclui PDFs de clientes, fotos ou resultados e não reexecuta a validação do motor.

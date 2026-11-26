@@ -1,0 +1,2 @@
+from hb2_studio.runtime import configure_bundled_runtime
+configure_bundled_runtime()

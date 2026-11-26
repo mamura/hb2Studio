@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hb2-studio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Diagnóstico e extração direta de PDFs de crachás"
 requires-python = ">=3.10"
 dependencies = ["pdfplumber>=0.11.9,<0.12"]
@@ -12,9 +12,11 @@ dependencies = ["pdfplumber>=0.11.9,<0.12"]
 [project.optional-dependencies]
 test = ["reportlab>=4", "openpyxl>=3.1,<4"]
 xlsx = ["openpyxl>=3.1,<4"]
+desktop = ["PySide6>=6.6,<7", "openpyxl>=3.1,<4"]
 
 [tool.setuptools.packages.find]
 include = ["hb2_studio*"]
 
 [project.scripts]
 hb2-studio = "hb2_studio.__main__:main"
+hb2-studio-desktop = "hb2_studio.desktop:main"

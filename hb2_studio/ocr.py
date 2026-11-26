@@ -7,17 +7,24 @@ import subprocess
 from datetime import datetime
 from PIL import ImageOps
 from .layout import BACK_FIELDS
+from .runtime import subprocess_options
+
+class OCRFormatError(RuntimeError):
+    pass
+
 
 def ocr(image, target, binary, psm):
     image.save(target.with_suffix('.png'))
     target.with_suffix('.png').chmod(0o600)
     run = subprocess.run([binary, str(target.with_suffix('.png')), 'stdout',
-                          '-l', 'por', '--psm', str(psm), 'tsv'],
-                         capture_output=True, check=True, text=True)
-    target.with_suffix('.tsv').write_text(run.stdout)
+                          '-l', 'por', '--psm', str(psm), '-c', 'tessedit_create_tsv=1'],
+                         capture_output=True, check=True, text=True, encoding='utf-8', **subprocess_options())
+    target.with_suffix('.tsv').write_text(run.stdout, encoding='utf-8')
     target.with_suffix('.tsv').chmod(0o600)
-    return [r for r in csv.DictReader(io.StringIO(run.stdout), delimiter='\t')
-            if r['text'].strip()]
+    reader = csv.DictReader(io.StringIO(run.stdout), delimiter='\t')
+    if not reader.fieldnames or not {'level', 'text', 'conf'}.issubset(reader.fieldnames):
+        raise OCRFormatError('O Tesseract não retornou uma tabela TSV válida.')
+    return [r for r in reader if r['text'].strip()]
 
 
 def name_words(rows):
