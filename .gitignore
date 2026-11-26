@@ -1,0 +1,11 @@
+*.pdf
+*.csv
+*.xlsx
+*.json
+/amostras/
+/resultados/
+.venv/
+__pycache__/
+*.egg-info/
+build/
+dist/
